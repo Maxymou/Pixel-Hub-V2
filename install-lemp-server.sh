@@ -198,14 +198,14 @@ systemctl restart nginx
 check_command "Redémarrage de Nginx réussi" "Échec du redémarrage de Nginx"
 
 # Vérification et redémarrage de PHP-FPM
-if systemctl list-unit-files | grep -q "php8.1-fpm.service"; then
-    systemctl restart php8.1-fpm
+if systemctl list-unit-files | grep -q "php-fpm.service"; then
+    systemctl restart php-fpm
     check_command "Redémarrage de PHP-FPM réussi" "Échec du redémarrage de PHP-FPM"
 else
     print_error "Service PHP-FPM non trouvé. Tentative de réinstallation..."
-    apt-get install --reinstall php8.1-fpm
-    systemctl enable php8.1-fpm
-    systemctl restart php8.1-fpm
+    apt-get install --reinstall php-fpm
+    systemctl enable php-fpm
+    systemctl restart php-fpm
     check_command "Réinstallation et redémarrage de PHP-FPM réussis" "Échec de la réinstallation de PHP-FPM"
 fi
 
@@ -217,7 +217,7 @@ print_message "Vérifications finales..."
 
 # Vérification des services
 check_service "nginx"
-check_service "php8.1-fpm"
+check_service "php-fpm"
 check_service "mariadb"
 
 # Vérification des ports

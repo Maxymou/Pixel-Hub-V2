@@ -25,13 +25,22 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# Demande de confirmation
-print_warning "Ce script va supprimer Nginx, PHP-FPM, MariaDB et tous les fichiers associés."
-print_warning "Êtes-vous sûr de vouloir continuer? (o/n)"
-read -r response
-if [[ ! "$response" =~ ^[Oo]$ ]]; then
-    print_message "Désinstallation annulée."
-    exit 0
+# Vérification de l'option force
+FORCE=0
+if [ "$1" = "-f" ] || [ "$1" = "--force" ]; then
+    FORCE=1
+fi
+
+# Demande de confirmation si pas en mode force
+if [ $FORCE -eq 0 ]; then
+    print_warning "Ce script va supprimer Nginx, PHP-FPM, MariaDB et tous les fichiers associés."
+    print_warning "Pour forcer la désinstallation sans confirmation, utilisez l'option -f ou --force"
+    print_warning "Êtes-vous sûr de vouloir continuer? (o/n)"
+    read -r response
+    if [[ ! "$response" =~ ^[Oo]$ ]]; then
+        print_message "Désinstallation annulée."
+        exit 0
+    fi
 fi
 
 # Arrêt des services
