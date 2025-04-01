@@ -1,74 +1,106 @@
-# Script d'Installation LEMP pour Raspberry Pi
+# Pixel Hub V2 - Script d'installation LEMP
 
-Ce projet fournit des scripts d'automatisation pour installer et désinstaller un environnement LEMP (Linux, Nginx, MariaDB, PHP) sur un Raspberry Pi exécutant Raspberry Pi OS Lite 64 bits.
+Ce script automatise l'installation d'un environnement LEMP (Linux, Nginx, MariaDB, PHP) sur Raspberry Pi OS 64 bits.
 
 ## Prérequis
 
-- Raspberry Pi avec Raspberry Pi OS Lite 64 bits
+- Raspberry Pi avec Raspberry Pi OS 64 bits
 - Connexion Internet active
 - Accès root (sudo)
 
+## Fonctionnalités
+
+- Installation automatique de Nginx, PHP-FPM et MariaDB
+- Configuration optimisée pour Raspberry Pi
+- Détection automatique de la version de PHP
+- Configuration sécurisée de MariaDB
+- Création d'une page de test PHP
+- Génération de rapports d'installation/désinstallation
+- Script de désinstallation complet
+
 ## Installation
 
-Pour installer le serveur LEMP, exécutez l'une des commandes suivantes :
+### Méthode 1 : Téléchargement direct
 
 ```bash
-# Via curl
-curl -s https://raw.githubusercontent.com/Maxymou/Pixel-Hub-V2/main/install-lemp-server.sh | sudo bash
+# Téléchargement du script d'installation
+curl -O https://raw.githubusercontent.com/Maxymou/Pixel-Hub-V2/main/install-lemp-server.sh
 
-# Ou via wget
-wget -qO- https://raw.githubusercontent.com/Maxymou/Pixel-Hub-V2/main/install-lemp-server.sh | sudo bash
+# Rendre le script exécutable
+chmod +x install-lemp-server.sh
+
+# Exécuter le script
+sudo ./install-lemp-server.sh
+```
+
+### Méthode 2 : Installation directe via curl
+
+```bash
+curl -s https://raw.githubusercontent.com/Maxymou/Pixel-Hub-V2/main/install-lemp-server.sh | sudo bash
 ```
 
 ## Désinstallation
 
-Pour désinstaller le serveur LEMP, exécutez :
+### Méthode 1 : Désinstallation interactive
 
 ```bash
-# Via curl
-curl -s https://raw.githubusercontent.com/Maxymou/Pixel-Hub-V2/main/uninstall-lemp-server.sh | sudo bash
+# Téléchargement du script de désinstallation
+curl -O https://raw.githubusercontent.com/Maxymou/Pixel-Hub-V2/main/uninstall-lemp-server.sh
 
-# Ou via wget
-wget -qO- https://raw.githubusercontent.com/Maxymou/Pixel-Hub-V2/main/uninstall-lemp-server.sh | sudo bash
+# Rendre le script exécutable
+chmod +x uninstall-lemp-server.sh
+
+# Exécuter le script
+sudo ./uninstall-lemp-server.sh
 ```
 
-## Composants Installés
+### Méthode 2 : Désinstallation forcée
 
-- **Nginx** : Serveur web haute performance
-- **PHP-FPM** : Processeur FastCGI pour PHP
-  - php-mysql : Support MySQL/MariaDB
-  - php-mbstring : Support des chaînes multibytes
-  - php-xml : Support XML
-  - php-json : Support JSON
-- **MariaDB** : Système de gestion de base de données
+```bash
+curl -s https://raw.githubusercontent.com/Maxymou/Pixel-Hub-V2/main/uninstall-lemp-server.sh | sudo bash -s -- -f
+```
 
-## Vérification de l'Installation
+## Configuration
 
-1. Accédez à la page de test PHP :
-   ```
-   http://votre_ip/info.php
-   ```
-   Vous devriez voir la page d'information PHP.
+### PHP-FPM
+- Version : Détectée automatiquement
+- Socket : `/var/run/php/php[VERSION]-fpm.sock`
+- Configuration : `/etc/php/[VERSION]/fpm/php.ini`
+- Pool : `/etc/php/[VERSION]/fpm/pool.d/www.conf`
 
-2. Vérifiez que les services sont en cours d'exécution :
-   ```bash
-   sudo systemctl status nginx
-   sudo systemctl status php-fpm
-   sudo systemctl status mariadb
-   ```
+### Nginx
+- Configuration : `/etc/nginx/sites-available/default`
+- Document root : `/var/www/html`
+- Port : 80
 
-3. Testez la connexion à MariaDB :
-   ```bash
-   mysql -u root -p
-   ```
-   Utilisez le mot de passe défini lors de l'installation (par défaut : root_password)
+### MariaDB
+- Port : 3306
+- Utilisateur root : root
+- Mot de passe : root_password (à changer après l'installation)
 
-## Notes de Sécurité
+## Vérification
 
-- Le mot de passe par défaut de MariaDB est `root_password`. Il est fortement recommandé de le modifier après l'installation.
-- Assurez-vous de configurer un pare-feu et de sécuriser votre serveur avant de le mettre en production.
-- N'oubliez pas de mettre à jour régulièrement votre système et les composants installés.
+Après l'installation, vous pouvez vérifier que tout fonctionne en accédant à :
+```
+http://votre_ip/info.php
+```
+
+## Rapports
+
+Les scripts génèrent des rapports détaillés dans :
+- Installation : `/var/log/lemp-installation-report-[DATE].log`
+- Désinstallation : `/var/log/lemp-uninstallation-report-[DATE].log`
+
+## Sécurité
+
+- Le script configure MariaDB avec des paramètres de sécurité de base
+- Les permissions des fichiers sont correctement définies
+- Les services sont configurés pour écouter uniquement sur les interfaces nécessaires
 
 ## Support
 
-Pour toute question ou problème, veuillez ouvrir une issue sur GitHub. 
+Pour toute question ou problème, veuillez ouvrir une issue sur GitHub.
+
+## Licence
+
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails. 
