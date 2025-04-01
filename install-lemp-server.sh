@@ -116,6 +116,10 @@ print_message "Installation de PHP et modules..."
 apt-get install -y php-fpm php-mysql php-mbstring php-xml php-json
 check_command "Installation de PHP et modules réussie" "Échec de l'installation de PHP"
 
+# Détection de la version de PHP
+PHP_VERSION=$(php -v | head -n 1 | cut -d " " -f 2 | cut -d "." -f 1,2)
+print_message "Version de PHP détectée: $PHP_VERSION"
+
 # Vérification des modules PHP
 check_php_module "mysql"
 check_php_module "mbstring"
@@ -198,14 +202,15 @@ systemctl restart nginx
 check_command "Redémarrage de Nginx réussi" "Échec du redémarrage de Nginx"
 
 # Vérification et redémarrage de PHP-FPM
-if systemctl list-unit-files | grep -q "php-fpm.service"; then
-    systemctl restart php-fpm
+PHP_FPM_SERVICE="php${PHP_VERSION}-fpm"
+if systemctl list-unit-files | grep -q "${PHP_FPM_SERVICE}.service"; then
+    systemctl restart ${PHP_FPM_SERVICE}
     check_command "Redémarrage de PHP-FPM réussi" "Échec du redémarrage de PHP-FPM"
 else
     print_error "Service PHP-FPM non trouvé. Tentative de réinstallation..."
     apt-get install --reinstall php-fpm
-    systemctl enable php-fpm
-    systemctl restart php-fpm
+    systemctl enable ${PHP_FPM_SERVICE}
+    systemctl restart ${PHP_FPM_SERVICE}
     check_command "Réinstallation et redémarrage de PHP-FPM réussis" "Échec de la réinstallation de PHP-FPM"
 fi
 
@@ -217,7 +222,7 @@ print_message "Vérifications finales..."
 
 # Vérification des services
 check_service "nginx"
-check_service "php-fpm"
+check_service "${PHP_FPM_SERVICE}"
 check_service "mariadb"
 
 # Vérification des ports
