@@ -182,13 +182,14 @@ check_command "Création du fichier de test PHP réussie" "Échec de la créatio
 print_message "Configuration et redémarrage des services..."
 
 # Vérification et création du répertoire de configuration PHP-FPM si nécessaire
-if [ ! -d "/etc/php/8.1/fpm" ]; then
+PHP_FPM_CONFIG_DIR="/etc/php/${PHP_VERSION}/fpm"
+if [ ! -d "$PHP_FPM_CONFIG_DIR" ]; then
     print_message "Création du répertoire de configuration PHP-FPM..."
-    mkdir -p /etc/php/8.1/fpm
+    mkdir -p "$PHP_FPM_CONFIG_DIR"
 fi
 
 # Configuration de PHP-FPM
-cat > /etc/php/8.1/fpm/php.ini << 'EOL'
+cat > "$PHP_FPM_CONFIG_DIR/php.ini" << 'EOL'
 [PHP]
 memory_limit = 128M
 upload_max_filesize = 64M
@@ -231,7 +232,7 @@ check_port "3306"
 
 # Vérification des fichiers de configuration
 check_file "/etc/nginx/sites-available/default"
-check_file "/etc/php/8.1/fpm/php.ini"
+check_file "$PHP_FPM_CONFIG_DIR/php.ini"
 check_file "/etc/mysql/my.cnf"
 
 # Vérification de la connexion à MariaDB
