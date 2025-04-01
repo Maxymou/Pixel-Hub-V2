@@ -174,13 +174,40 @@ phpinfo();
 EOL
 check_command "Création du fichier de test PHP réussie" "Échec de la création du fichier de test PHP"
 
-# 7. Redémarrage des services
-print_message "Redémarrage des services..."
+# 7. Configuration et redémarrage des services
+print_message "Configuration et redémarrage des services..."
+
+# Vérification et création du répertoire de configuration PHP-FPM si nécessaire
+if [ ! -d "/etc/php/8.1/fpm" ]; then
+    print_message "Création du répertoire de configuration PHP-FPM..."
+    mkdir -p /etc/php/8.1/fpm
+fi
+
+# Configuration de PHP-FPM
+cat > /etc/php/8.1/fpm/php.ini << 'EOL'
+[PHP]
+memory_limit = 128M
+upload_max_filesize = 64M
+post_max_size = 64M
+max_execution_time = 600
+max_input_time = 600
+EOL
+
+# Redémarrage des services
 systemctl restart nginx
 check_command "Redémarrage de Nginx réussi" "Échec du redémarrage de Nginx"
 
-systemctl restart php-fpm
-check_command "Redémarrage de PHP-FPM réussi" "Échec du redémarrage de PHP-FPM"
+# Vérification et redémarrage de PHP-FPM
+if systemctl list-unit-files | grep -q "php8.1-fpm.service"; then
+    systemctl restart php8.1-fpm
+    check_command "Redémarrage de PHP-FPM réussi" "Échec du redémarrage de PHP-FPM"
+else
+    print_error "Service PHP-FPM non trouvé. Tentative de réinstallation..."
+    apt-get install --reinstall php8.1-fpm
+    systemctl enable php8.1-fpm
+    systemctl restart php8.1-fpm
+    check_command "Réinstallation et redémarrage de PHP-FPM réussis" "Échec de la réinstallation de PHP-FPM"
+fi
 
 systemctl restart mariadb
 check_command "Redémarrage de MariaDB réussi" "Échec du redémarrage de MariaDB"
@@ -190,7 +217,7 @@ print_message "Vérifications finales..."
 
 # Vérification des services
 check_service "nginx"
-check_service "php-fpm"
+check_service "php8.1-fpm"
 check_service "mariadb"
 
 # Vérification des ports
@@ -199,7 +226,7 @@ check_port "3306"
 
 # Vérification des fichiers de configuration
 check_file "/etc/nginx/sites-available/default"
-check_file "/etc/php/*/fpm/php.ini"
+check_file "/etc/php/8.1/fpm/php.ini"
 check_file "/etc/mysql/my.cnf"
 
 # Vérification de la connexion à MariaDB
