@@ -128,7 +128,7 @@ check_php_module "json"
 
 # 4. Configuration de Nginx pour PHP
 print_message "Configuration de Nginx pour PHP..."
-cat > /etc/nginx/sites-available/default << 'EOL'
+cat > /etc/nginx/sites-available/default << EOL
 server {
     listen 80;
     server_name _;
@@ -136,13 +136,13 @@ server {
     index index.php index.html;
 
     location / {
-        try_files $uri $uri/ =404;
+        try_files \$uri \$uri/ =404;
     }
 
-    location ~ \.php$ {
+    location ~ \.php\$ {
         include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/var/run/php/php-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_pass unix:/var/run/php/php${PHP_VERSION}-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
     }
 }
@@ -196,6 +196,22 @@ upload_max_filesize = 64M
 post_max_size = 64M
 max_execution_time = 600
 max_input_time = 600
+EOL
+
+# Configuration du pool PHP-FPM
+cat > "$PHP_FPM_CONFIG_DIR/pool.d/www.conf" << 'EOL'
+[www]
+user = www-data
+group = www-data
+listen = /var/run/php/php-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+listen.mode = 0660
+pm = dynamic
+pm.max_children = 5
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3
 EOL
 
 # Redémarrage des services
