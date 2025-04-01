@@ -14,10 +14,10 @@ Pour installer le serveur LEMP, exécutez l'une des commandes suivantes :
 
 ```bash
 # Via curl
-curl -s https://raw.githubusercontent.com/votre-username/votre-repo/main/install-lemp-server.sh | sudo bash
+curl -s https://raw.githubusercontent.com/Maxymou/Pixel-HubV2/main/install-lemp-server.sh | sudo bash
 
 # Ou via wget
-wget -qO- https://raw.githubusercontent.com/votre-username/votre-repo/main/install-lemp-server.sh | sudo bash
+wget -qO- https://raw.githubusercontent.com/Maxymou/Pixel-HubV2/main/install-lemp-server.sh | sudo bash
 ```
 
 ## Désinstallation
@@ -26,10 +26,10 @@ Pour désinstaller le serveur LEMP, exécutez :
 
 ```bash
 # Via curl
-curl -s https://raw.githubusercontent.com/votre-username/votre-repo/main/uninstall-lemp-server.sh | sudo bash
+curl -s https://raw.githubusercontent.com/Maxymou/Pixel-HubV2/main/uninstall-lemp-server.sh | sudo bash
 
 # Ou via wget
-wget -qO- https://raw.githubusercontent.com/votre-username/votre-repo/main/uninstall-lemp-server.sh | sudo bash
+wget -qO- https://raw.githubusercontent.com/Maxymou/Pixel-HubV2/main/uninstall-lemp-server.sh | sudo bash
 ```
 
 ## Composants Installés
