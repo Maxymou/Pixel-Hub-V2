@@ -249,6 +249,7 @@ check_port "3306"
 # Vérification des fichiers de configuration
 check_file "/etc/nginx/sites-available/default"
 check_file "$PHP_FPM_CONFIG_DIR/php.ini"
+check_file "$PHP_FPM_CONFIG_DIR/pool.d/www.conf"
 check_file "/etc/mysql/my.cnf"
 
 # Vérification de la connexion à MariaDB
