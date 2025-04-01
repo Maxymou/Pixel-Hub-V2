@@ -199,11 +199,11 @@ max_input_time = 600
 EOL
 
 # Configuration du pool PHP-FPM
-cat > "$PHP_FPM_CONFIG_DIR/pool.d/www.conf" << 'EOL'
+cat > "$PHP_FPM_CONFIG_DIR/pool.d/www.conf" << EOL
 [www]
 user = www-data
 group = www-data
-listen = /var/run/php/php-fpm.sock
+listen = /var/run/php/php${PHP_VERSION}-fpm.sock
 listen.owner = www-data
 listen.group = www-data
 listen.mode = 0660
