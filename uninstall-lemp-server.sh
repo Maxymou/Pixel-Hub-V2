@@ -108,6 +108,11 @@ check_command "Désinstallation de PHP et modules réussie" "Échec de la désin
 apt-get remove -y mariadb-server mariadb-client
 check_command "Désinstallation de MariaDB réussie" "Échec de la désinstallation de MariaDB"
 
+# Désinstallation de phpMyAdmin
+print_message "Désinstallation de phpMyAdmin..."
+apt-get remove -y phpmyadmin
+check_command "Désinstallation de phpMyAdmin réussie" "Échec de la désinstallation de phpMyAdmin"
+
 # 3. Suppression des fichiers de configuration
 print_message "Suppression des fichiers de configuration..."
 rm -rf /etc/nginx

@@ -260,6 +260,82 @@ else
     print_error "Échec de la connexion à MariaDB"
 fi
 
+# Installation de phpMyAdmin
+print_message "Installation de phpMyAdmin..."
+
+# Configuration pour l'installation non-interactive de phpMyAdmin
+debconf-set-selections <<< "phpmyadmin phpmyadmin/dbconfig-install boolean true"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/app-password-confirm password $MARIADB_ROOT_PASSWORD"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/admin-pass password $MARIADB_ROOT_PASSWORD"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/app-pass password $MARIADB_ROOT_PASSWORD"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect nginx"
+
+# Installation de phpMyAdmin
+apt-get install -y phpmyadmin
+check_command "Installation de phpMyAdmin réussie" "Échec de l'installation de phpMyAdmin"
+
+# Configuration de Nginx pour phpMyAdmin
+print_message "Configuration de Nginx pour phpMyAdmin..."
+cat > /etc/nginx/sites-available/default << EOL
+server {
+    listen 80;
+    server_name _;
+    root /var/www/html;
+    index index.php index.html;
+
+    # Configuration générale
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    # Configuration PHP
+    location ~ \.php\$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php${PHP_VERSION}-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    # Configuration phpMyAdmin
+    location /phpmyadmin {
+        root /usr/share/;
+        index index.php index.html index.htm;
+        location ~ ^/phpmyadmin/(.+\.php)\$ {
+            try_files \$uri =404;
+            root /usr/share/;
+            fastcgi_pass unix:/var/run/php/php${PHP_VERSION}-fpm.sock;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+            include /etc/nginx/fastcgi_params;
+        }
+        location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))\$ {
+            root /usr/share/;
+        }
+    }
+
+    # Interdire l'accès aux fichiers .htaccess
+    location ~ /\.ht {
+        deny all;
+    }
+}
+EOL
+check_command "Configuration de Nginx pour phpMyAdmin réussie" "Échec de la configuration de Nginx pour phpMyAdmin"
+
+# Création du lien symbolique pour phpMyAdmin
+if [ ! -d "/usr/share/phpmyadmin" ]; then
+    print_error "Le répertoire de phpMyAdmin n'existe pas"
+    exit 1
+fi
+
+# Redémarrage de Nginx
+systemctl restart nginx
+check_command "Redémarrage de Nginx réussi" "Échec du redémarrage de Nginx"
+
+print_message "phpMyAdmin a été installé avec succès!"
+print_message "Vous pouvez accéder à phpMyAdmin à l'adresse: http://votre_ip/phpmyadmin"
+print_message "Utilisateur: root"
+print_message "Mot de passe: $MARIADB_ROOT_PASSWORD"
+
 # Génération du rapport final
 echo "==========================================" >> "$REPORT_FILE"
 echo "=== Résumé de l'installation ===" >> "$REPORT_FILE"
